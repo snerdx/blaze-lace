@@ -6,25 +6,35 @@ A cinematic, gothic-cosmic K-pop teaser website for the debut girl group Blaze L
 
 ## Installation
 
-1. Extract the ZIP file to any location on your computer
+### Local Development
 
-2. Open `index.html` in any modern web browser:
-   - Chrome (recommended)
-   - Firefox
-   - Safari
-   - Edge
+1. Extract the files to your web server directory (e.g., htdocs, www)
 
-No server or build tools required. Everything runs locally.
+2. Copy `config.sample.php` to `config.php` and configure:
+   - Set your email addresses for form submissions
+   - Enable/disable email logging
+
+3. Ensure PHP 7.4+ is installed and configured
+
+4. Access via local web server:
+   - `http://localhost/blaze-lace/`
+   - Or configure a virtual host
+
+### Static Preview
+
+You can preview the site without a server by opening `index.html` directly, but email submissions won't work without PHP.
 
 ---
 
 ## Features
 
-- ✓ Live countdown timer to March 1, 2026
+- ✓ Live countdown timer to June 1, 2026
 - ✓ Animated nebula background with drift effect
 - ✓ Layered smoke and ember particle systems
 - ✓ Interactive audio player with visual equalizer
-- ✓ Email capture form (client-side only)
+- ✓ Email capture form with PHP backend
+- ✓ Duplicate email detection
+- ✓ Rate limiting and spam protection
 - ✓ 4 member reveal cards with unique color themes
 - ✓ Gothic lace frame overlay
 - ✓ Fully responsive design
@@ -40,6 +50,10 @@ blaze-lace-site/
 ├── index.html          Main HTML file
 ├── styles.css          All styles and animations
 ├── script.js           JavaScript functionality
+├── submit-email.php    Email submission handler
+├── config.php          Server configuration (create from config.sample.php)
+├── config.sample.php   Sample configuration file
+├── email_log.txt       Email submission log (created automatically)
 ├── README.md           This file
 └── assets/
     ├── nebula.png      Background nebula image
@@ -59,10 +73,10 @@ blaze-lace-site/
 
 ### Countdown Date
 
-Edit line 3 in `script.js`:
+Edit line 40 in `script.js`:
 
 ```javascript
-const targetDate = new Date('2026-03-01T00:00:00').getTime();
+const targetDate = new Date('2026-06-01T00:00:00').getTime();
 ```
 
 ### Member Lock Percentages
@@ -117,6 +131,7 @@ Edit CSS custom properties in `styles.css` under each member card `data-color` a
 - Pure HTML5
 - CSS3 with animations
 - Vanilla JavaScript (ES6+)
+- PHP 7.4+ (backend)
 
 ---
 
