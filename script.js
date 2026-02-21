@@ -106,9 +106,14 @@ const emailInput = document.getElementById('emailInput');
 const submitButton = document.getElementById('submitButton');
 const successMessage = document.getElementById('successMessage');
 
+// Track submission state
+let isSubmitting = false;
+
 // Create spark particles on hover
 submitButton.addEventListener('mouseenter', () => {
-    createSparks();
+    if (!isSubmitting) {
+        createSparks();
+    }
 });
 
 function createSparks() {
@@ -139,35 +144,111 @@ function createSparks() {
     }
 }
 
-submitButton.addEventListener('click', () => {
+// Email validation regex
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Show error message
+function showError(message) {
+    emailInput.style.borderColor = 'rgba(255, 100, 100, 0.8)';
+    
+    // Update success message to show error
+    successMessage.textContent = '✗ ' + message;
+    successMessage.style.backgroundColor = 'rgba(220, 38, 38, 0.9)';
+    successMessage.classList.add('show');
+    
+    setTimeout(() => {
+        emailInput.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        successMessage.classList.remove('show');
+        // Reset success message styling
+        setTimeout(() => {
+            successMessage.style.backgroundColor = 'rgba(220, 38, 38, 0.95)';
+            successMessage.textContent = '✓ You\'re in. The fire rises.';
+        }, 300);
+    }, 3000);
+}
+
+// Show success message
+function showSuccess(message) {
+    successMessage.textContent = '✓ ' + message;
+    successMessage.style.backgroundColor = 'rgba(220, 38, 38, 0.95)';
+    successMessage.classList.add('show');
+    
+    setTimeout(() => {
+        successMessage.classList.remove('show');
+    }, 3000);
+}
+
+// Submit email to backend
+async function submitEmail() {
     const email = emailInput.value.trim();
     
-    if (email && email.includes('@')) {
-        // Create burst of sparks on click
-        createSparks();
-        createSparks();
-        
-        // Simulate submission
-        emailInput.value = '';
-        successMessage.classList.add('show');
-        
-        // Hide success message after 3 seconds
-        setTimeout(() => {
-            successMessage.classList.remove('show');
-        }, 3000);
-    } else {
-        // Simple validation feedback
-        emailInput.style.borderColor = 'rgba(255, 100, 100, 0.8)';
-        setTimeout(() => {
-            emailInput.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-        }, 1000);
+    // Client-side validation
+    if (!email) {
+        showError('Email address is required');
+        return;
     }
-});
+    
+    if (!isValidEmail(email)) {
+        showError('Please enter a valid email address');
+        return;
+    }
+    
+    // Prevent double submission
+    if (isSubmitting) {
+        return;
+    }
+    
+    isSubmitting = true;
+    submitButton.disabled = true;
+    submitButton.textContent = 'IGNITING...';
+    
+    // Create burst of sparks on click
+    createSparks();
+    createSparks();
+    
+    try {
+        // Send to PHP backend
+        const response = await fetch('submit-email.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: email })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Success
+            emailInput.value = '';
+            showSuccess(data.message || 'You\'re in. The fire rises.');
+        } else {
+            // Server returned error
+            showError(data.message || 'Something went wrong. Please try again.');
+        }
+    } catch (error) {
+        // Network or other error
+        console.error('Submission error:', error);
+        showError('Connection error. Please check your internet and try again.');
+    } finally {
+        // Reset button state
+        isSubmitting = false;
+        submitButton.disabled = false;
+        submitButton.textContent = 'IGNITE';
+    }
+}
+
+// Handle button click
+submitButton.addEventListener('click', submitEmail);
 
 // Allow Enter key to submit
 emailInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-        submitButton.click();
+        e.preventDefault();
+        submitEmail();
     }
 });
 
