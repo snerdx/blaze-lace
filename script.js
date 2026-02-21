@@ -37,7 +37,7 @@ document.addEventListener('mousemove', (e) => {
 // =====================================
 // COUNTDOWN TIMER
 // =====================================
-const targetDate = new Date('2026-03-01T00:00:00').getTime();
+const targetDate = new Date('2026-06-01T00:00:00').getTime();
 
 function updateCountdown() {
     const now = new Date().getTime();
